@@ -1,21 +1,21 @@
 data <- dados
 
 
-st_data <- function(data, n_lags_maf=8){
+st_data <- function(data, n_y_lags = 8, n_lags_of_factors = 8, n_lags_maf=8){
   
   data <- as.data.frame(data)
   yt <- data[,1]
   xt <- data[,2:ncol(data)]
   
   
-  # 1. Eight lags of yt ####
+  # 1. lags of yt ####
   
-  y_8_lags <- embed(yt,9)
-  y_8_lags <- y_8_lags[,2:9]
-  colnames(y_8_lags) <- c("y_lag1","y_lag2", "y_lag3", "y_lag4", "y_lag5", "y_lag6",
-                          "y_lag7", "y_lag8")
+  y_lags <- embed(yt,(n_y_lags+1))
+  y_lags <- y_lags[,2:(n_y_lags+1)]
+  lags_names <- paste0("y_lag", 1:ncol(y_lags))
+  colnames(y_lags) <- lags_names
   
-  y_lags <- as.data.frame(y_8_lags)
+  y_lags <- as.data.frame(y_lags)
   
   
   # 2. Two lags of each variable in FRED-MD ####
@@ -39,19 +39,19 @@ st_data <- function(data, n_lags_maf=8){
   
   pca5_result <- pca_result$x[, 1:5]
   
-  pca5_8lags <- embed(pca5_result, 9)
-  pca5_8lags <- pca5_8lags[,6:ncol(pca5_8lags)]
+  pca5_lags <- embed(pca5_result, n_lags_of_factors+1)
+  pca5_lags <- pca5_lags[,6:ncol(pca5_lags)]
   
-  pca5_8lags <- as.data.frame(pca5_8lags)
+  pca5_lags <- as.data.frame(pca5_lags)
   
   names_list <- list()
-  for (i in 1:8){
+  for (i in 1:n_lags_of_factors){
     for (j in 1:5){
       names_list <- c(names_list, paste0("PCA",j,"_",i,"lag"))
     }
   }
   
-  colnames(pca5_8lags) <- names_list
+  colnames(pca5_lags) <- names_list
   
   # 4. Two MAFs for each variable J ####
   
@@ -100,7 +100,7 @@ st_data <- function(data, n_lags_maf=8){
   #dataframe St
   
   
-  dfs <- list(y_lags, xt_2_lags, pca5_8lags, mafs_df)
+  dfs <- list(y_lags, xt_2_lags, pca5_lags, mafs_df)
   
   N <- min(sapply(dfs, nrow)) 
   dfs_alinhados <- lapply(dfs, tail, N)
@@ -109,6 +109,8 @@ st_data <- function(data, n_lags_maf=8){
   df_final$t <- c(1:nrow(df_final))
   
   return(df_final)
+  
 }
 
 st_mddata <- st_data(data = data, n_lags_maf = 12)
+
