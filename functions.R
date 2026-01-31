@@ -60,31 +60,17 @@ st_data <- function(data, n_y_lags = 8, n_lags_of_factors = 8, n_lags_maf=8){
   maf_list <- list()
   for (var_name in colnames(data)) {
     
-    # Extrair a série temporal da variável j
-    # Usamos [[var_name]] para extrair como um vetor
-    serie_j <- data[["CPI"]]
     
-    # Criar a matriz de 8 defasagens (P=8)
-    # Assim como para y_t, usamos embed() com n_lags + 1
-    # Isso cria uma matriz onde cada linha é (y_t, y_t-1, ..., y_t-8)
-    embedded_j <- embed(serie_j, n_lags_maf + 1)
+    embedded_j <- embed(yt, n_lags_maf + 1)
     
-    # 5. Isolar APENAS as defasagens
-    # Removemos a primeira coluna (que é o lag 0, ou o valor atual)
     lags_j_matrix <- embedded_j[, -1] 
     
-    # 6. Rodar o PCA sobre a matriz de 8 defasagens da variável j
-    # O seu fredqd_limpo já foi tratado para NAs, então prcomp deve rodar sem erros.
     pca_j <- prcomp(lags_j_matrix, center = TRUE, scale. = TRUE)
     
-    # 7. Extrair os 2 primeiros componentes (MAFs)
-    # pca_j$x contém os componentes principais
     mafs_j <- pca_j$x[, 1:n_maf_components]
     
-    # 8. Renomear as colunas para evitar conflitos e para identificação
     colnames(mafs_j) <- c(paste0(var_name, "_MAF1"), paste0(var_name, "_MAF2"))
     
-    # 9. Adicionar o data frame de 2 colunas à nossa lista
     maf_list[[var_name]] <- mafs_j
   }
   
@@ -111,6 +97,3 @@ st_data <- function(data, n_y_lags = 8, n_lags_of_factors = 8, n_lags_maf=8){
   return(df_final)
   
 }
-
-st_mddata <- st_data(data = data, n_lags_maf = 12)
-
