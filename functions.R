@@ -175,10 +175,10 @@ FAARRF_data <- function(df){
 
 
 # 3. CALL_MRF ####
-call_mrf <- function(df, n_y_lags = 8, n_lags_of_each_var = 2,
+mrf_data <- function(df, n_y_lags = 8, n_lags_of_each_var = 2,
                      n_lags_of_5_factors = 8,
                      n_lags_j=8, n_maf_components = 2,
-                     lin.model = "none"){
+                     lin.model = "none", horizon = 1){
   
   if (lin.model == "FAARRF"){
     FAARRF_data_called <- FAARRF_data(df = df)
@@ -197,11 +197,38 @@ call_mrf <- function(df, n_y_lags = 8, n_lags_of_each_var = 2,
   N <- min(sapply(dfs, nrow)) 
   dfs_alinhados <- lapply(dfs, tail, N)
   
-  df_final <- do.call(cbind, dfs_alinhados)
+  xt_st <- do.call(cbind, dfs_alinhados)
   
+  # fitting horizon ####
+  
+  yt <- as.data.frame(df[,1])
+  colnames(yt) <- "yt"
+  yt <- tail(yt,N)
+  
+  if (horizon == 1){
+    
+    df_final <- cbind(yt, xt_st)
+    
+  } else {
+    
+    horizon = horizon-1
+    
+    xt_st <- head(xt_st, -horizon)
+    yt <- tail(yt, -horizon)
+    colnames(yt) <- paste0("yt+",horizon, "(horizon =", horizon, ")")
+    
+    df_final <- cbind(yt, xt_st)
+    
+    
+  }
   return(df_final)
   
 }
 
 
 
+
+modelo1<- mrf_data(df, n_y_lags = 12, n_lags_of_each_var = 2, n_lags_j = 12,
+                   n_lags_of_5_factors = 8, n_maf_components = 2,  lin.model = "FAARRF")
+
+modelo2 <- mrf_data(df, lin.model = "FAARRF", horizon=2)
