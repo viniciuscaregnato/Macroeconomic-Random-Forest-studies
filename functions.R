@@ -215,7 +215,7 @@ mrf_data <- function(df, n_y_lags = 8, n_lags_of_each_var = 2,
     
     xt_st <- head(xt_st, -horizon)
     yt <- tail(yt, -horizon)
-    colnames(yt) <- paste0("yt+",horizon, "(horizon =", horizon, ")")
+    colnames(yt) <- paste0("yt+",horizon, " (horizon =", (horizon+1), ")")
     
     df_final <- cbind(yt, xt_st)
     
@@ -232,3 +232,4 @@ modelo1<- mrf_data(df, n_y_lags = 12, n_lags_of_each_var = 2, n_lags_j = 12,
                    n_lags_of_5_factors = 8, n_maf_components = 2,  lin.model = "FAARRF")
 
 modelo2 <- mrf_data(df, lin.model = "FAARRF", horizon=2)
+
