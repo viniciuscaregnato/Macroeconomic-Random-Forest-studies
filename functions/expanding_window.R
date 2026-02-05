@@ -23,22 +23,34 @@ expanding_window <- function(df, lin.model,
     
   }
   
-  results = list()
-  k <- 1
+  n_windows <- (oos.pos/12)
   
-  for (i in oos.pos:1){
-    
-    df_adj <- df_adj[1:(nrow(df_adj)-oos.pos+1),]
-  
-  run <- MRF(data = df_adj, y.pos=y.pos, x.pos = x.pos, S.pos=S.pos,
-             oos.pos=nrow(df_adj),
-             ridge.lambda=0.1, B=50)
-  
-  results[[k]] <- run
-  k <- k +1
+  if(oos.pos %% 12 != 0){
+    stop("o numero de observações out-of-sample devem ser múltiplo de 12")
   }
   
-}
+  results = list()
+  k <- 1
 
+  for (i in n_window:1){
+    
+    df_exp <- df_adj[1:(nrow(df_adj)-12*n_windows+12),]
+  
+  run <- MRF(data = df_exp, y.pos=y.pos, x.pos = x.pos, S.pos=S.pos,
+             oos.pos=(nrow(df_exp)-12+1):nrow(df_exp),
+             ridge.lambda=0.1, B=50)
+  
+  # se quiser salvar só a previsao
+  #results[[k]] <- run$pred
+
+  # se quiser salvar todas as infos da arvore  
+  results[[k]] <- run
+  k <- k +1
+  
+  
+  }
+  
+  return(results)
+}
 
 
