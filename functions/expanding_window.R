@@ -32,7 +32,7 @@ expanding_window <- function(df, lin.model,
   results = list()
   k <- 1
 
-  for (i in n_window:1){
+  for (i in n_windows:1){
     
     df_exp <- df_adj[1:(nrow(df_adj)-12*n_windows+12),]
   
