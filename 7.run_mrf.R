@@ -8,11 +8,12 @@ source("functions/expanding_window.R")
 load("data/rawdata.RData")
 df <- dados
 
+model_list = list()
+
 # call_mrf fixed window ####
 
-model_name = "MRF_exp_12lags"
+model_name = "MRF_fxd_12lags"
 
-model_list = list()
 
 for (i in c(1:12)){
   cat("horizonte ", i,"\n")
@@ -39,6 +40,8 @@ forecasts <-  Reduce(cbind,lapply(model_list, function(x)x$pred))
 
 # call_mrf expanding window ####
 
+model_name = "MRF_exp_12lags"
+
 for (i in 1:12){
   cat("horizonte ", i,"\n")
   model = expanding_window(df=df, lin.model = "FAARRF", horizon = i,
@@ -52,24 +55,20 @@ for (i in 1:12){
 }
 
 
+save(model_list, file = "model_list_exp.RData")
+
+
 # salvando os forecasts de expanding window
 
-forecast_list <- list()
 
-for ( i in 1:2){
-  
-  forecast_list[[i]] <- list()
-  
-  for ( j in 1:oos.pos/12){
-forecasts <-  Reduce(cbind,lapply(model_list, function(x)x[[i]][[j]]$pred))
+forecast_horizon <- list()
+for (i in 1:12){
+    forecast_horizon[[i]] <- lapply(model_list[[i]], function(x)x$pred)
+     }
 
-forecast_list[[i]][[j]] <- forecasts
-    }
-}
+forecast_series <- lapply(forecast_horizon, function(i){unlist(i)})
 
-model_list[[2]][[2]]$pred
-
-
+forecasts <- do.call(cbind, forecast_series)
 
 
 
