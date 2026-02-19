@@ -34,7 +34,7 @@ expanding_window <- function(df, lin.model,
 
   for (i in n_windows:1){
     
-    df_exp <- df_adj[1:(nrow(df_adj)-12*n_windows+12),]
+    df_exp <- df_adj[1:(nrow(df_adj)-12*i+12),]
   
   run <- MRF(data = df_exp, y.pos=y.pos, x.pos = x.pos, S.pos=S.pos,
              oos.pos=(nrow(df_exp)-12+1):nrow(df_exp),
@@ -52,5 +52,6 @@ expanding_window <- function(df, lin.model,
   
   return(results)
 }
+
 
 
