@@ -80,11 +80,12 @@ forecasts <- do.call(cbind, forecast_horizon)
 # o accumulate_model calcula as diagonais, sendo assim, os valores de previsao de 3 e 6 meses e adiciona as colunas referetnes
 forecasts_4lags = accumulate_model(forecasts)
 
-View(forecasts)
+#View(forecasts_4lags)
 
 save(forecasts_4lags,file = paste("forecasts/",model_name,".rda",sep = ""))
 
 
 plot(tail(df[,"CPI"],312),type = "l")
 lines(forecasts[,1],col = 5)
+
 
