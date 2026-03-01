@@ -62,13 +62,15 @@ save(model_list, file = "model_list_exp.RData")
 
 
 forecast_horizon <- list()
-for (i in 1:12){
-    forecast_horizon[[i]] <- lapply(model_list[[i]], function(x)x$pred)
-     }
+for (i in 1:12) {
+  temp_preds <- list() 
+    for (j in 1:26) {
+    temp_preds[[j]] <- model_list[[i]][[j]]$pred
+  }
+  forecast_horizon[[i]] <- unlist(temp_preds)
+}
 
-forecast_series <- lapply(forecast_horizon, function(i){unlist(i)})
-
-forecasts <- do.call(cbind, forecast_series)
+forecasts <- do.call(cbind, forecast_horizon)
 
 
 
@@ -85,3 +87,4 @@ save(forecasts_4lags,file = paste("forecasts/",model_name,".rda",sep = ""))
 
 plot(tail(df[,"CPI"],312),type = "l")
 lines(forecasts[,1],col = 5)
+
