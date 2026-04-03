@@ -23,6 +23,14 @@ expanding_window <- function(df, lin.model,
     
   }
   
+  if (lin.model == "FAARRF_4lags"){
+    y.pos=1
+    x.pos=2:8
+    S.pos=9:ncol(df_adj)
+    oos.pos=(nrow(df_adj)-(oos.pos-1)):nrow(df_adj)
+    
+  }
+  
   n_windows <- (oos.pos/12)
   
   if(oos.pos %% 12 != 0){
@@ -38,7 +46,8 @@ expanding_window <- function(df, lin.model,
   
   run <- MRF(data = df_exp, y.pos=y.pos, x.pos = x.pos, S.pos=S.pos,
              oos.pos=(nrow(df_exp)-12+1):nrow(df_exp),
-             ridge.lambda=0.1, B=50)
+             ridge.lambda=0.01, B=50, VI=FALSE,
+             printb = FALSE, fast.rw = TRUE, keep.forest = FALSE)
   
   # se quiser salvar só a previsao
   #results[[k]] <- run$pred
@@ -47,11 +56,14 @@ expanding_window <- function(df, lin.model,
   results[[k]] <- run
   k <- k +1
   
+  # Imprime a cada 50 iterações
+  #if (k %% 50 == 0) {
+   # cat("Iteração k =", k, "| i =", i, "\n")
+  #}
   
   }
   
   return(results)
 }
-
 
 
