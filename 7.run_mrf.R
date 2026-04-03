@@ -104,11 +104,16 @@ lines(forecasts[,1],col = 5)
 
 
 
-"MRF_exp_FAARRF_st1: n_y_lags = 4,
+"MRF_exp_FAARRF_st1: lin.model = "FAARRF",
+                     n_y_lags = 4,
                      n_lags_of_each_var = 4,
                      n_lags_of_5_factors = 4,
                      n_lags_j = 4,
                      n_maf_components = 4,
-                     oos.pos = 312"
+                     oos.pos = 312, 
+                     B=300, VI=FALSE,
+                     printb = FALSE,
+                     fast.rw = TRUE,
+                     keep.forest = FALSE"
 
 
