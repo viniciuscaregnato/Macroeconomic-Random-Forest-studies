@@ -1,9 +1,9 @@
 
 # 1. ST DATA ####
 
-st_data <- function(df, n_y_lags = n_y_lags, n_lags_of_each_var = n_lags_of_each_var,
-                    n_lags_of_5_factors = n_lags_of_5_factors,
-                    n_lags_j=n_lags_j, n_maf_components = n_maf_components){
+st_data <- function(df, n_y_lags, n_lags_of_each_var,
+                    n_lags_of_5_factors,
+                    n_lags_j, n_maf_components){
   
   df <- as.data.frame(df)
   yt <- df[,1]
@@ -170,15 +170,69 @@ FAARRF_data <- function(df){
   
 }
 
+# 3. FAARRF_4LAGS  ####
 
-# 3. CALL_MRF ####
-mrf_data <- function(df, n_y_lags = n_y_lags, n_lags_of_each_var = n_lags_of_each_var,
-                     n_lags_of_5_factors = n_lags_of_5_factors,
-                     n_lags_j=n_lags_j, n_maf_components = n_maf_components,
-                     lin.model = lin.model, horizon = horizon){
+# este modelo linear considera 4 lags de Yt + 2lags de PC1 e PC2
+
+FAARRF_4lags <- function(df){
+  
+  df <- as.data.frame(df)
+  yt <- df[,1]
+  xt <- df[,-1]
+  
+  dates <- row.names(df)
+  
+  #1. 2 lags de y ####
+  
+  y_2lags <- embed(yt,5)
+  y_2lags <- y_2lags[,-1]
+  
+  
+  dates_1 <- dates[-(1:4)]
+  row.names(y_2lags) <- dates_1
+  colnames(y_2lags) <- c("Yt-1", "Yt-2", "Yt-3", "Yt-4")
+  
+  #2. lag de PC1 e PC2 ####
+  
+  pca <- prcomp(df, center = TRUE, scale. = TRUE)
+  pca2 <- pca$x[,1:2]
+  
+  pca2_lags <- embed(pca2, 3)        
+  pca2_lags <- pca2_lags[, -(1:2)]  
+  
+  dates_2 <- dates[-(1:2)]           
+  row.names(pca2_lags) <- dates_2
+  colnames(pca2_lags) <- c("PC1_lag1", "PC2_lag1", 
+                           "PC1_lag2", "PC2_lag2")
+  
+  # UNINDO ####
+  
+  dfs <- list(y_2lags, pca2_lags)
+  
+  N <- min(sapply(dfs, nrow)) 
+  dfs_alinhados <- lapply(dfs, tail, N)
+  
+  df_final <- do.call(cbind, dfs_alinhados)
+  
+  return(df_final)
+  
+}
+
+
+
+
+# 4. CALL_MRF ####
+mrf_data <- function(df, n_y_lags, n_lags_of_each_var,
+                     n_lags_of_5_factors,
+                     n_lags_j, n_maf_components,
+                     lin.model, horizon){
   
   if (lin.model == "FAARRF"){
     FAARRF_data_called <- FAARRF_data(df = df)
+  }
+  
+  if (lin.model == "FAARRF_4lags"){
+    FAARRF_data_called <- FAARRF_4lags(df=df)
   }
   
   
